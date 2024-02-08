@@ -1,6 +1,7 @@
 import "./style.css";
 import { Tabs } from "antd-mobile";
 import { useTabs } from './useTabs'
+import HomeList from "./HomeList";
 const Home = () => {
   const { channels } = useTabs()
   return (
@@ -11,6 +12,7 @@ const Home = () => {
           {channels.map((item) => (
             <Tabs.Tab title={item.name} key={item.id}>
               {/* list 组件 */}
+              <HomeList channelId ={item.id + ''}/>
             </Tabs.Tab>
           ))}
         </Tabs>
