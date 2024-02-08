@@ -1,4 +1,4 @@
-import { Image, List } from "antd-mobile";
+import { Image, InfiniteScroll, List } from "antd-mobile";
 // mock数据
 import { users } from "./users";
 import { useEffect, useState } from "react";
@@ -31,6 +31,33 @@ const HomeList = (props:Props) => {
     }
     getList()
   }, [channelId])
+
+  // 开关, 标记当前是否还有新数据
+  // 上拉加载触发的必要条件 1. hasMore = true 2. 小于 threshold
+  const [hasMore, setHasMore] = useState(true)
+  // 加载下一页的函数
+  const loadMore = async () => {
+    // 编写加载下一页的核心逻辑
+    console.log('上拉加载触发了');
+    try {
+      const res = await fetchListAPI({
+        channel_id:channelId,
+        timestamp:listRes.pre_timestamp
+      })
+      // 拼接新数据 + 存取下一次请求的时间戳
+      setListRes({
+        results:[...listRes.results, ...res.data.data.results],
+        pre_timestamp:res.data.data.pre_timestamp
+      })
+      // 停止监听
+      if (res.data.data.results.length === 0) {
+        setHasMore(false)
+      }
+    } catch (error) {
+      throw new Error('fetch list error')
+    }
+    setHasMore(false)
+  }
   return (
     <>
       <List>
@@ -52,6 +79,7 @@ const HomeList = (props:Props) => {
           </List.Item>
         ))}
       </List>
+      <InfiniteScroll loadMore={loadMore} hasMore={hasMore} threshold={10}></InfiniteScroll>
     </>
   );
 };
